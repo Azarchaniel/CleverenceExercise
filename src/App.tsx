@@ -20,6 +20,7 @@ function Alert(props: any) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
+// STYLES
 const boldStyle = {
     root: {fontWeight: FontWeights.semibold}
 };
@@ -28,6 +29,7 @@ const dropdownStyles: Partial<IDropdownStyles> = {
     dropdown: {width: 335},
 };
 
+// INTERFACES
 interface IForm {
     firstName: string,
     lastName: string,
@@ -47,7 +49,9 @@ interface IToast {
     message: string
 }
 
+// MAIN
 export const App: React.FunctionComponent = () => {
+    //INIT STATES
     const formInit: IForm = {
         firstName: '',
         lastName: '',
@@ -57,17 +61,25 @@ export const App: React.FunctionComponent = () => {
         readUnderstood: false
     };
 
+    //todo: here sould be also birthday, or more
     const errorInit: IError = {
         email: ''
     };
 
+    const toastInit: IToast = {
+        open: false,
+        message: ''
+    }
+
+    //STATES
     const [error, setError] = useState<IError>(errorInit);
     const [form, setForm] = useState<IForm>(formInit);
     const [jsonRes, setJsonRes] = useState('');
     const [date, setDate] = useState<Date | undefined>();
-    const [toast, setToast] = useState<IToast>({open: false, message: ''});
+    const [toast, setToast] = useState<IToast>(toastInit);
     const datePickerRef = useRef<IDatePicker>(null);
 
+    //handle close of Toast
     const handleClose = (event: any, reason: any) => {
         if (reason === 'clickaway') {
             return;
@@ -75,12 +87,22 @@ export const App: React.FunctionComponent = () => {
         setToast({...toast, open: false});
     };
 
+    /** run over every prop in error obj and if its length is greater than 0,
+     * it means, that there is error in form
+     */
     const checkForErrors = () => {
         let errorExists = false;
-        Object.entries(error).forEach(([key, value]) => { if (value && value.length > 0) { errorExists = true }});
+        Object.entries(error).forEach(([key, value]) => {
+            if (value && value.length > 0) {
+                errorExists = true
+            }
+        });
         return errorExists;
     }
 
+    /**
+     * take form as object and create string from it. Then push it to TextField
+     */
     const exportJson = () => {
         if (checkForErrors()) {
             setToast({message: `Ve formuláři je chyba: ${error.email}`, open: true});
@@ -90,11 +112,20 @@ export const App: React.FunctionComponent = () => {
         setForm(formInit);
     }
 
+    /**
+     *  If JSON is not valid, end fnc
+     *  Else parse JSON and set values to form
+     */
     const importJson = () => {
         if (!isJsonValid(jsonRes)) return;
         setForm(JSON.parse(jsonRes));
     }
 
+    /**
+     * Check, if JSON is valid. It just check if after parse is there any parsed JSON and if it is valid object
+     * Else show Toast
+     * @param jsonToCheck
+     */
     const isJsonValid = (jsonToCheck: string) => {
         try {
             let parsedJson = JSON.parse(jsonToCheck);
@@ -104,6 +135,13 @@ export const App: React.FunctionComponent = () => {
         }
     }
 
+    /**
+     * If it is Event, take value from e.target
+     * Some elements sends also second paramater where value is.
+     * This need to polished, but no time..
+     * @param e
+     * @param item
+     */
     const handleForm = (e: React.FormEvent<HTMLElement | HTMLInputElement> | undefined, item?: any): void => {
         if (e) {
             if (item) {
@@ -122,6 +160,9 @@ export const App: React.FunctionComponent = () => {
         setForm({...form, birthDate: dateInput ? dateInput : undefined})
     }
 
+    /**
+     * If date is inserted as a string, parse it to Date
+     */
     const onParseDateFromString = React.useCallback(
         (newValue: string): Date => {
             const previousValue = form.birthDate || new Date();
@@ -143,6 +184,10 @@ export const App: React.FunctionComponent = () => {
         [date],
     );
 
+    /**
+     * Too simple regex check to check if email is valid
+     * @param e
+     */
     const validateEmail = (e: any): void => {
         if (e.target.value && !/^\S+@\S+$/.test(e.target.value)) {
             setError({...error, email: 'Zadejte validní email!'});
@@ -164,7 +209,6 @@ export const App: React.FunctionComponent = () => {
         }
     }
 
-
     const parseDate = (date: string): Date => {
         //todo: this is not DRY
         const newValueParts = (date || '').trim().split('.');
@@ -174,6 +218,9 @@ export const App: React.FunctionComponent = () => {
         return new Date(day, month, year);
     }*/
 
+    /**
+     * Options for Dropdown/select
+     */
     const regionOptions: IDropdownOption[] = [
         {key: 'praha', text: 'Hlavní město Praha'},
         {key: 'stredocesky', text: 'Středočeský kraj'},
@@ -185,7 +232,9 @@ export const App: React.FunctionComponent = () => {
         {key: 'moravskoslezsky', text: 'Moravskoslezský kraj'},
     ];
 
-    //locale for datePicker
+    /**
+     * locale for datePicker
+     */
     const dayPickerStrings: IDatePickerStrings = {
         months: [
             'leden',
@@ -210,91 +259,93 @@ export const App: React.FunctionComponent = () => {
 
     return (
         <>
-        <Stack
-            horizontalAlign="start"
-            verticalAlign="center"
-            verticalFill
-            styles={{
-                root: {
-                    width: '1500px',
-                    margin: '0 auto',
-                    textAlign: 'left',
-                    color: '#605e5c'
-                }
-            }}
-            gap={15}
-        >
-            <Stack horizontal horizontalAlign="start" verticalAlign="center" gap={15}>
-                <img src="https://avatars.githubusercontent.com/u/6682674?s=100&v=4" alt="logo"/>
-                <Text variant="xxLarge" styles={boldStyle}>
-                    Cleverence Exercise
-                </Text>
-            </Stack>
+            <Stack
+                horizontalAlign="start"
+                verticalAlign="center"
+                verticalFill
+                styles={{
+                    root: {
+                        width: '1500px',
+                        margin: '0 auto',
+                        textAlign: 'left',
+                        color: '#605e5c'
+                    }
+                }}
+                gap={15}
+            >
+                <Stack horizontal horizontalAlign="start" verticalAlign="center" gap={15}>
+                    <img src="https://avatars.githubusercontent.com/u/6682674?s=100&v=4" alt="logo"/>
+                    <Text variant="xxLarge" styles={boldStyle}>
+                        Cleverence Exercise
+                    </Text>
+                </Stack>
 
-            <Stack horizontal gap={15} horizontalAlign="stretch">
-                <Stack.Item>
-                    <TextField label="Jméno" id="firstName" onChange={handleForm} value={form.firstName} style={{width: 160}} />
-                </Stack.Item>
-                <Stack.Item>
-                    <TextField label="Příjmení" id="lastName" onChange={handleForm} value={form.lastName} style={{width: 160}} />
-                </Stack.Item>
-            </Stack>
-            <Stack horizontal gap={15} horizontalAlign="start">
-                {/* to improve: not really good regex for email, but KISS for now */}
-                <TextField label="E-mail"
-                           id="email"
-                           errorMessage={error.email}
-                           onBlur={validateEmail}
-                           onChange={handleForm}
-                           value={form.email}
-                           style={{width: 160}}
-                />
-                <DatePicker label="Datum narození" strings={dayPickerStrings} firstDayOfWeek={DayOfWeek.Monday}
-                            id="birthDate"
-                            componentRef={datePickerRef}
-                            value={form.birthDate}
-                            onSelectDate={selectDate}
-                            allowTextInput
-                            parseDateFromString={onParseDateFromString}
-                            formatDate={(date?: Date): string => {
-                                date = typeof date === "string" ? new Date(date) : date;
-                                return !date ? '' : (date.getDate() + '.' + (date.getMonth() + 1) + '.' + (date.getFullYear()))
-                            }}
-                            style={{width: 160}}
-                    //onBlur={validateBirthDate}
-                />
-            </Stack>
-            <Stack horizontal gap={15} horizontalAlign="start">
-                <Dropdown
-                    placeholder="Vyberte kraj z ponuky"
-                    label="Kraj"
-                    id="region"
-                    options={regionOptions}
-                    styles={dropdownStyles}
-                    onChange={handleForm}
-                />
-            </Stack>
-            <Stack>
-                <Checkbox label="Četl a porozuměl jsem" id="readUnderstood" onChange={handleForm}
-                          checked={form.readUnderstood}/>
-            </Stack>
+                <Stack horizontal gap={15} horizontalAlign="stretch">
+                    <Stack.Item>
+                        <TextField label="Jméno" id="firstName" onChange={handleForm} value={form.firstName}
+                                   style={{width: 160}}/>
+                    </Stack.Item>
+                    <Stack.Item>
+                        <TextField label="Příjmení" id="lastName" onChange={handleForm} value={form.lastName}
+                                   style={{width: 160}}/>
+                    </Stack.Item>
+                </Stack>
+                <Stack horizontal gap={15} horizontalAlign="start">
+                    {/* to improve: not really good regex for email, but KISS for now */}
+                    <TextField label="E-mail"
+                               id="email"
+                               errorMessage={error.email}
+                               onBlur={validateEmail}
+                               onChange={handleForm}
+                               value={form.email}
+                               style={{width: 160}}
+                    />
+                    <DatePicker label="Datum narození" strings={dayPickerStrings} firstDayOfWeek={DayOfWeek.Monday}
+                                id="birthDate"
+                                componentRef={datePickerRef}
+                                value={form.birthDate}
+                                onSelectDate={selectDate}
+                                allowTextInput
+                                parseDateFromString={onParseDateFromString}
+                                formatDate={(date?: Date): string => {
+                                    date = typeof date === "string" ? new Date(date) : date;
+                                    return !date ? '' : (date.getDate() + '.' + (date.getMonth() + 1) + '.' + (date.getFullYear()))
+                                }}
+                                style={{width: 160}}
+                        //onBlur={validateBirthDate}
+                    />
+                </Stack>
+                <Stack horizontal gap={15} horizontalAlign="start">
+                    <Dropdown
+                        placeholder="Vyberte kraj z ponuky"
+                        label="Kraj"
+                        id="region"
+                        options={regionOptions}
+                        styles={dropdownStyles}
+                        onChange={handleForm}
+                    />
+                </Stack>
+                <Stack>
+                    <Checkbox label="Četl a porozuměl jsem" id="readUnderstood" onChange={handleForm}
+                              checked={form.readUnderstood}/>
+                </Stack>
 
-            <Stack horizontal gap={15}>
-                <DefaultButton text="Uložit" onClick={exportJson} allowDisabledFocus style={{width: 160}}/>
-                <DefaultButton text="Načíst" onClick={importJson} allowDisabledFocus style={{width: 160}}/>
-            </Stack>
+                <Stack horizontal gap={15}>
+                    <DefaultButton text="Uložit" onClick={exportJson} allowDisabledFocus style={{width: 160}}/>
+                    <DefaultButton text="Načíst" onClick={importJson} allowDisabledFocus style={{width: 160}}/>
+                </Stack>
 
-            <Stack horizontal>
-                <TextField id="json"
-                           multiline
-                           autoAdjustHeight
-                           value={jsonRes}
-                           onChange={(e) => setJsonRes((e as any).target.value)}
-                           style={{width: 335}}
-                />
-            </Stack>
+                <Stack horizontal>
+                    <TextField id="json"
+                               multiline
+                               autoAdjustHeight
+                               value={jsonRes}
+                               onChange={(e) => setJsonRes((e as any).target.value)}
+                               style={{width: 335}}
+                    />
+                </Stack>
 
-        </Stack>
+            </Stack>
             <Snackbar open={toast.open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error">
                     {toast.message}
